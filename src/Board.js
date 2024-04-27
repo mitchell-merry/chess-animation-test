@@ -2,20 +2,19 @@ import './Board.css';
 import { useEffect, useRef, useState } from 'react';
 
 const CELL_SIZE_PX = 160;
-const PIECE_SIZE_PX = 100;
+const PIECE_SIZE_PX = 160;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
 const r = () => Math.floor(Math.random() * 3);
-const piece = col => ({
+const piece = pieceIndex => ({
   row: r(),
   col: r(),
-  color: ['red', 'green', 'blue'][col],
+  color: ['red', 'green', 'blue'][pieceIndex % 3],
 });
-const count = 3;
+const count = 2;
 
-export function Board() {
+export function Board({ mouseX, mouseY }) {
   const [holdingPiece, setHoldingPiece] = useState(undefined);
-  const [mousePosition, setMousePosition] = useState([-1, -1]);
   const [pieces, setPieces] = useState(
     Array(count)
       .fill(0)
@@ -49,14 +48,6 @@ export function Board() {
           return newPieces;
         });
       }}
-      onMouseMove={event => {
-        const bounds = boardRef.current.getBoundingClientRect();
-
-        setMousePosition([
-          event.clientX - bounds.left,
-          event.clientY - bounds.top,
-        ]);
-      }}
     >
       {Array(3)
         .fill(0)
@@ -65,13 +56,17 @@ export function Board() {
         ))}
 
       {pieces.map((piece, i) => {
+        let x, y;
+
         const isHeld = holdingPiece?.pieceIndex === i;
-        const x = isHeld
-          ? mousePosition[0] - holdingPiece.pieceOffset[0]
-          : piece.row * CELL_SIZE_PX + PIECE_PAD_PX;
-        const y = isHeld
-          ? mousePosition[1] - holdingPiece.pieceOffset[1]
-          : piece.col * CELL_SIZE_PX + PIECE_PAD_PX;
+        if (isHeld) {
+          const bounds = boardRef.current.getBoundingClientRect();
+          x = mouseX - bounds.left - holdingPiece.pieceOffset[0];
+          y = mouseY - bounds.top - holdingPiece.pieceOffset[1];
+        } else {
+          x = piece.row * CELL_SIZE_PX + PIECE_PAD_PX;
+          y = piece.col * CELL_SIZE_PX + PIECE_PAD_PX;
+        }
 
         return (
           <Piece
