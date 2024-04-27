@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const CELL_SIZE_PX = 100;
 const PIECE_SIZE_PX = 90;
+const GRID_SIZE = 3;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
 const num = () => Math.floor(Math.random() * 3);
@@ -11,13 +12,13 @@ const piece = pieceIndex => ({
   col: num(),
   color: ['red', 'green', 'blue'][pieceIndex % 3],
 });
-const count = 2;
+const PIECE_COUNT = 2;
 
 export function Board({ mouseX, mouseY }) {
   const [holdingPiece, setHoldingPiece] = useState(undefined);
   const [activePiece, setActivePiece] = useState(undefined);
   const [pieces, setPieces] = useState(
-    Array(count)
+    Array(PIECE_COUNT)
       .fill(0)
       .map((_, i) => piece(i)),
   );
@@ -43,7 +44,7 @@ export function Board({ mouseX, mouseY }) {
         const bounds = boardRef.current.getBoundingClientRect();
         const row = Math.floor((event.clientX - bounds.left) / CELL_SIZE_PX);
         const col = Math.floor((event.clientY - bounds.top) / CELL_SIZE_PX);
-        if (row < 0 || row >= 3 || col < 0 || col >= 3) return;
+        if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) return;
 
         movePieceTo(holdingPiece.pieceIndex, row, col);
       }}
