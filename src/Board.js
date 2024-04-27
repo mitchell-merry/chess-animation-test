@@ -1,5 +1,6 @@
-import './Board.css';
 import { useEffect, useRef, useState } from 'react';
+
+import './Board.css';
 import black_king from './assets/black_king.svg';
 import black_queen from './assets/black_queen.svg';
 import black_rook from './assets/black_rook.svg';
@@ -95,30 +96,38 @@ export function Board({ mouseX, mouseY }) {
       newPieces[piece].file = file;
       return newPieces;
     });
+    setActivePiece(undefined);
   };
 
   const onCellClick = (rank, file) => {
     if (activePiece === undefined) return;
 
     movePieceTo(activePiece, rank, file);
-    setActivePiece(undefined);
   };
 
   return (
     <div
       className={'board'}
       ref={boardRef}
-      // onMouseUp={event => {
-      //   if (!holdingPiece) return;
-      //   setHoldingPiece(undefined);
-      //
-      //   const bounds = boardRef.current.getBoundingClientRect();
-      //   const rank = Math.floor((event.clientY - bounds.top) / CELL_SIZE_PX);
-      //   const file = Math.floor((event.clientX - bounds.left) / CELL_SIZE_PX);
-      //   if (rank < 0 || rank >= GRID_SIZE || file < 0 || file >= GRID_SIZE)
-      //     return;
-      //
-      //   movePieceTo(holdingPiece.pieceIndex, rank, file);
+      onMouseUp={event => {
+        if (!holdingPiece) return;
+        setHoldingPiece(undefined);
+
+        const bounds = boardRef.current.getBoundingClientRect();
+        const rank = Math.floor((event.clientY - bounds.top) / CELL_SIZE_PX);
+        const file = Math.floor((event.clientX - bounds.left) / CELL_SIZE_PX);
+        if (rank < 0 || rank >= GRID_SIZE || file < 0 || file >= GRID_SIZE)
+          return;
+
+        if (
+          holdingPiece.pieceStartingPosition.rank === rank &&
+          holdingPiece.pieceStartingPosition.file === file
+        ) {
+          return;
+        }
+
+        movePieceTo(holdingPiece.pieceIndex, rank, file);
+      }}
     >
       {mapNum(GRID_SIZE, (_, r) => (
         <Rank key={`rank-${r}`} rank={r} onCellClick={onCellClick} />
@@ -145,22 +154,21 @@ export function Board({ mouseX, mouseY }) {
             y={y}
             color={piece.color}
             type={piece.type}
-            // onMouseDown={event => {
-            //   setHoldingPiece({
-            //     pieceIndex: i,
-            //     pieceOffset: [
-            //       event.nativeEvent.offsetX,
-            //       event.nativeEvent.offsetY,
-            //     ],
-            //   });
-            // }}
-            onClick={() => {
+            onMouseDown={event => {
               if (activePiece !== undefined) {
                 movePieceTo(activePiece, piece.rank, piece.file);
-                setActivePiece(undefined);
-              } else {
-                setActivePiece(i);
+                return;
               }
+
+              setHoldingPiece({
+                index: i,
+                mouseOffset: [
+                  event.nativeEvent.offsetX,
+                  event.nativeEvent.offsetY,
+                ],
+                startingPosition: { rank: piece.rank, file: piece.file },
+              });
+              setActivePiece(i);
             }}
           />
         );
