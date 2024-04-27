@@ -1,8 +1,8 @@
 import './Board.css';
 import { useEffect, useRef, useState } from 'react';
 
-const CELL_SIZE_PX = 160;
-const PIECE_SIZE_PX = 100;
+const CELL_SIZE_PX = 100;
+const PIECE_SIZE_PX = 90;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
 const num = () => Math.floor(Math.random() * 3);
@@ -26,8 +26,8 @@ export function Board({ mouseX, mouseY }) {
   const movePieceTo = (piece, row, col) => {
     setPieces(pieces => {
       const newPieces = [...pieces];
-      newPieces[holdingPiece.pieceIndex].row = row;
-      newPieces[holdingPiece.pieceIndex].col = col;
+      newPieces[piece].row = row;
+      newPieces[piece].col = col;
       return newPieces;
     });
   };
@@ -45,7 +45,7 @@ export function Board({ mouseX, mouseY }) {
         const col = Math.floor((event.clientY - bounds.top) / CELL_SIZE_PX);
         if (row < 0 || row >= 3 || col < 0 || col >= 3) return;
 
-        movePieceTo(holdingPiece, row, col);
+        movePieceTo(holdingPiece.pieceIndex, row, col);
       }}
     >
       {Array(3)
@@ -57,7 +57,7 @@ export function Board({ mouseX, mouseY }) {
             onCellClick={(row, col) => {
               if (activePiece === undefined) return;
 
-              movePieceTo(holdingPiece, row, col);
+              movePieceTo(activePiece, row, col);
               setActivePiece(undefined);
             }}
           />

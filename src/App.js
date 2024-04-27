@@ -13,6 +13,7 @@ function App() {
       }}
     >
       <Board mouseX={mousePosition[0]} mouseY={mousePosition[1]}></Board>
+      <Board mouseX={mousePosition[0]} mouseY={mousePosition[1]}></Board>
     </div>
   );
 }

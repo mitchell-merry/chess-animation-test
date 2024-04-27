@@ -3,8 +3,8 @@
 }
 
 .cell {
-  min-width: 160px;
-  min-height: 160px;
+  min-width: 100px;
+  min-height: 100px;
   border: 1px solid black;
   display: inline-block;
 }
@@ -16,6 +16,7 @@
 
 .board {
   background-color: #f0f0f0;
+  margin: 30px;
   display: flex;
   flex-direction: column;
   border: 1px solid black;
@@ -24,8 +25,8 @@
 .piece {
   display: inline;
   position: absolute;
-  min-width: 100px;
-  min-height: 100px;
+  min-width: 90px;
+  min-height: 90px;
   background-color: #000000;
   z-index: 1;
 
