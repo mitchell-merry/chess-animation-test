@@ -2,19 +2,20 @@ import './Board.css';
 import { useEffect, useRef, useState } from 'react';
 
 const CELL_SIZE_PX = 160;
-const PIECE_SIZE_PX = 160;
+const PIECE_SIZE_PX = 100;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
-const r = () => Math.floor(Math.random() * 3);
+const num = () => Math.floor(Math.random() * 3);
 const piece = pieceIndex => ({
-  row: r(),
-  col: r(),
+  row: num(),
+  col: num(),
   color: ['red', 'green', 'blue'][pieceIndex % 3],
 });
 const count = 2;
 
 export function Board({ mouseX, mouseY }) {
   const [holdingPiece, setHoldingPiece] = useState(undefined);
+  const [activePiece, setActivePiece] = useState(undefined);
   const [pieces, setPieces] = useState(
     Array(count)
       .fill(0)
@@ -22,9 +23,14 @@ export function Board({ mouseX, mouseY }) {
   );
   const boardRef = useRef(null);
 
-  useEffect(() => {
-    console.log(holdingPiece?.pieceOffset);
-  }, [holdingPiece]);
+  const movePieceTo = (piece, row, col) => {
+    setPieces(pieces => {
+      const newPieces = [...pieces];
+      newPieces[holdingPiece.pieceIndex].row = row;
+      newPieces[holdingPiece.pieceIndex].col = col;
+      return newPieces;
+    });
+  };
 
   return (
     <div
@@ -32,7 +38,6 @@ export function Board({ mouseX, mouseY }) {
       ref={boardRef}
       onMouseUp={event => {
         if (!holdingPiece) return;
-
         setHoldingPiece(undefined);
 
         const bounds = boardRef.current.getBoundingClientRect();
@@ -40,19 +45,22 @@ export function Board({ mouseX, mouseY }) {
         const col = Math.floor((event.clientY - bounds.top) / CELL_SIZE_PX);
         if (row < 0 || row >= 3 || col < 0 || col >= 3) return;
 
-        setPieces(pieces => {
-          const newPieces = [...pieces];
-          newPieces[holdingPiece.pieceIndex].row = row;
-          newPieces[holdingPiece.pieceIndex].col = col;
-
-          return newPieces;
-        });
+        movePieceTo(holdingPiece, row, col);
       }}
     >
       {Array(3)
         .fill(0)
         .map((_, r) => (
-          <Row key={`row-${r}`} row={r} />
+          <Row
+            key={`row-${r}`}
+            row={r}
+            onCellClick={(row, col) => {
+              if (activePiece === undefined) return;
+
+              movePieceTo(holdingPiece, row, col);
+              setActivePiece(undefined);
+            }}
+          />
         ))}
 
       {pieces.map((piece, i) => {
@@ -75,6 +83,7 @@ export function Board({ mouseX, mouseY }) {
             x={x}
             y={y}
             color={piece.color}
+            onClick={() => setActivePiece(i)}
             onMouseDown={(event, piece) => {
               setHoldingPiece({
                 pieceIndex: i,
@@ -92,23 +101,26 @@ export function Board({ mouseX, mouseY }) {
   );
 }
 
-export function Row({ row }) {
+export function Row({ row, onCellClick }) {
   return (
     <div className={'row'}>
       {Array(3)
         .fill(0)
-        .map((_, c) => (
-          <Cell key={`cell-${c}-${row}`} />
+        .map((_, col) => (
+          <Cell
+            key={`cell-${col}-${row}`}
+            onClick={() => onCellClick(col, row)}
+          />
         ))}
     </div>
   );
 }
 
-export function Cell() {
-  return <div className={'cell'} />;
+export function Cell({ onClick }) {
+  return <div className={'cell'} onClick={onClick} />;
 }
 
-export function Piece({ x, y, color, isHeld, onMouseDown }) {
+export function Piece({ x, y, color, isHeld, onMouseDown, onClick }) {
   const pieceRef = useRef(null);
 
   return (
@@ -120,6 +132,7 @@ export function Piece({ x, y, color, isHeld, onMouseDown }) {
         backgroundColor: color,
         transition: !isHeld ? 'transform 0.1s ease' : undefined,
       }}
+      onClick={onClick}
       onMouseDown={event => onMouseDown(event, pieceRef)}
     />
   );

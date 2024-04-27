@@ -24,8 +24,8 @@
 .piece {
   display: inline;
   position: absolute;
-  min-width: 160px;
-  min-height: 160px;
+  min-width: 100px;
+  min-height: 100px;
   background-color: #000000;
   z-index: 1;
 
