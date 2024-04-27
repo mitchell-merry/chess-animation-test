@@ -1,12 +1,14 @@
 import './Board.css';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+
+const mapNum = (num, mapFunc) => Array(num).fill(0).map(mapFunc);
 
 const CELL_SIZE_PX = 100;
 const PIECE_SIZE_PX = 90;
-const GRID_SIZE = 3;
+const GRID_SIZE = 8;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
-const num = () => Math.floor(Math.random() * 3);
+const num = () => Math.floor(Math.random() * GRID_SIZE);
 const piece = pieceIndex => ({
   row: num(),
   col: num(),
@@ -17,11 +19,7 @@ const PIECE_COUNT = 2;
 export function Board({ mouseX, mouseY }) {
   const [holdingPiece, setHoldingPiece] = useState(undefined);
   const [activePiece, setActivePiece] = useState(undefined);
-  const [pieces, setPieces] = useState(
-    Array(PIECE_COUNT)
-      .fill(0)
-      .map((_, i) => piece(i)),
-  );
+  const [pieces, setPieces] = useState(mapNum(PIECE_COUNT, (_, i) => piece(i)));
   const boardRef = useRef(null);
 
   const movePieceTo = (piece, row, col) => {
@@ -49,20 +47,18 @@ export function Board({ mouseX, mouseY }) {
         movePieceTo(holdingPiece.pieceIndex, row, col);
       }}
     >
-      {Array(3)
-        .fill(0)
-        .map((_, r) => (
-          <Row
-            key={`row-${r}`}
-            row={r}
-            onCellClick={(row, col) => {
-              if (activePiece === undefined) return;
+      {mapNum(GRID_SIZE, (_, r) => (
+        <Row
+          key={`row-${r}`}
+          row={r}
+          onCellClick={(row, col) => {
+            if (activePiece === undefined) return;
 
-              movePieceTo(activePiece, row, col);
-              setActivePiece(undefined);
-            }}
-          />
-        ))}
+            movePieceTo(activePiece, row, col);
+            setActivePiece(undefined);
+          }}
+        />
+      ))}
 
       {pieces.map((piece, i) => {
         let x, y;
@@ -105,20 +101,25 @@ export function Board({ mouseX, mouseY }) {
 export function Row({ row, onCellClick }) {
   return (
     <div className={'row'}>
-      {Array(3)
-        .fill(0)
-        .map((_, col) => (
-          <Cell
-            key={`cell-${col}-${row}`}
-            onClick={() => onCellClick(col, row)}
-          />
-        ))}
+      {mapNum(GRID_SIZE, (_, col) => (
+        <Cell
+          key={`cell-${col}-${row}`}
+          onClick={() => onCellClick(col, row)}
+          color={(row + col) % 2 === 0 ? '#f0d9b5' : '#b58863'}
+        />
+      ))}
     </div>
   );
 }
 
-export function Cell({ onClick }) {
-  return <div className={'cell'} onClick={onClick} />;
+export function Cell({ onClick, color }) {
+  return (
+    <div
+      className={'cell'}
+      style={{ backgroundColor: color }}
+      onClick={onClick}
+    />
+  );
 }
 
 export function Piece({ x, y, color, isHeld, onMouseDown, onClick }) {
