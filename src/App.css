@@ -7,4 +7,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  background-color: #282c34;
+}
+
+/** prevent dragging of images but still allow events like onMouseDown to go through */
+img {
+  user-select: none;
 }
