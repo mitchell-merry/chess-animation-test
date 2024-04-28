@@ -139,10 +139,13 @@ export function Rank({ rankIndex, activePiece, onCellClick }) {
 }
 
 export function Cell({ onClick, isDark, isActive }) {
-  const cellColourClass = isDark ? 'cell-dark' : 'cell-light';
-  const cellClass = `${cellColourClass} ${isActive ? 'cell-active' : ''}`;
+  const classes = Object.values({
+    base: 'cell',
+    colour: isDark ? 'cell-dark' : 'cell-light',
+    active: isActive ? 'cell-active' : '',
+  }).join(' ');
 
-  return <div className={`cell ${cellClass}`} onClick={onClick} />;
+  return <div className={classes} onClick={onClick} />;
 }
 
 export function Piece({ x, y, color, type, isHeld, onMouseDown, onClick }) {
