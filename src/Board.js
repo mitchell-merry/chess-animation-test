@@ -10,7 +10,7 @@ const GRID_SIZE = 8;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
 export function Board({ mouseX, mouseY }) {
-  const [holdingPiece, setHoldingPiece] = useState(undefined);
+  const [holdingPieceUUID, setHoldingPieceUUID] = useState(undefined);
   const [activePieceUUID, setActivePieceUUID] = useState(undefined);
   const [pieces, setPieces] = useState(
     STARTING_PIECES.map(p => ({ ...p, uuid: `${Math.random()}` })),
@@ -48,22 +48,20 @@ export function Board({ mouseX, mouseY }) {
   };
 
   const releasePiece = event => {
-    if (!holdingPiece) return;
-    setHoldingPiece(undefined);
+    if (!holdingPieceUUID) return;
+    setHoldingPieceUUID(undefined);
 
     const bounds = boardRef.current.getBoundingClientRect();
     const rank = Math.floor((event.clientY - bounds.top) / CELL_SIZE_PX);
     const file = Math.floor((event.clientX - bounds.left) / CELL_SIZE_PX);
     if (rank < 0 || rank >= GRID_SIZE || file < 0 || file >= GRID_SIZE) return;
 
-    if (
-      holdingPiece.startingPosition.rank === rank &&
-      holdingPiece.startingPosition.file === file
-    ) {
+    const holdingPiece = pieces.find(p => p.uuid === holdingPieceUUID);
+    if (holdingPiece.rank === rank && holdingPiece.file === file) {
       return;
     }
 
-    movePieceTo(holdingPiece.uuid, rank, file);
+    movePieceTo(holdingPieceUUID, rank, file);
   };
 
   return (
@@ -80,11 +78,11 @@ export function Board({ mouseX, mouseY }) {
       {pieces.map((piece, i) => {
         let x, y;
 
-        const isHeld = holdingPiece?.uuid === piece.uuid;
+        const isHeld = holdingPieceUUID === piece.uuid;
         if (isHeld) {
           const bounds = boardRef.current.getBoundingClientRect();
-          x = mouseX - bounds.left - holdingPiece.mouseOffset[0];
-          y = mouseY - bounds.top - holdingPiece.mouseOffset[1];
+          x = mouseX - bounds.left - PIECE_SIZE_PX / 2;
+          y = mouseY - bounds.top - PIECE_SIZE_PX / 2;
         } else {
           x = piece.file * CELL_SIZE_PX + PIECE_PAD_PX;
           y = piece.rank * CELL_SIZE_PX + PIECE_PAD_PX;
@@ -104,14 +102,7 @@ export function Board({ mouseX, mouseY }) {
                 return;
               }
 
-              setHoldingPiece({
-                uuid: piece.uuid,
-                mouseOffset: [
-                  event.nativeEvent.offsetX,
-                  event.nativeEvent.offsetY,
-                ],
-                startingPosition: { rank: piece.rank, file: piece.file },
-              });
+              setHoldingPieceUUID(piece.uuid);
               setActivePieceUUID(piece.uuid);
             }}
           />
