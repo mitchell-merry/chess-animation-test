@@ -41,8 +41,8 @@
 .piece {
   display: inline;
   position: absolute;
-  min-width: 90px;
-  min-height: 90px;
+  min-width: 100px;
+  min-height: 100px;
   background-color: rgba(0, 0, 0, 0);
   z-index: 1;
 }

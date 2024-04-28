@@ -5,7 +5,7 @@ import { ASSETS, STARTING_PIECES } from './assets/data';
 const mapNum = (num, mapFunc) => Array(num).fill(0).map(mapFunc);
 
 const CELL_SIZE_PX = 100;
-const PIECE_SIZE_PX = 90;
+const PIECE_SIZE_PX = 100;
 const GRID_SIZE = 8;
 const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
@@ -106,7 +106,6 @@ export function Board({ mouseX, mouseY }) {
 }
 
 export function Rank({ rankIndex, activePiece, onCellClick }) {
-  console.log(activePiece);
   return (
     <div className={'rank'}>
       {mapNum(GRID_SIZE, (_, file) => (
@@ -124,15 +123,8 @@ export function Rank({ rankIndex, activePiece, onCellClick }) {
 }
 
 export function Cell({ onClick, isDark, isActive }) {
-  // add the cell-dark or cell-light class depending on isDark
-  // example:
   const cellColourClass = isDark ? 'cell-dark' : 'cell-light';
-  // add the cell-active class if isActive
   const cellClass = `${cellColourClass} ${isActive ? 'cell-active' : ''}`;
-
-  if (isActive) {
-    console.log('Cell is active');
-  }
 
   return <div className={`cell ${cellClass}`} onClick={onClick} />;
 }
