@@ -9,6 +9,22 @@
   display: inline-block;
 }
 
+.cell-dark {
+    background-color: #b58863;
+}
+
+.cell-light {
+    background-color: #f0d9b5;
+}
+
+.cell-active.cell-light {
+    background-color: #f0c5b5;
+}
+
+.cell-active.cell-dark {
+  background-color: #cd8a6d;
+}
+
 .rank {
   display: flex;
   flex-direction: row;

@@ -52,8 +52,13 @@ export function Board({ mouseX, mouseY }) {
 
   return (
     <div className={'board'} ref={boardRef} onMouseUp={releasePiece}>
-      {mapNum(GRID_SIZE, (_, r) => (
-        <Rank key={`rank-${r}`} rank={r} onCellClick={onCellClick} />
+      {mapNum(GRID_SIZE, (_, rankIndex) => (
+        <Rank
+          key={`rank-${rankIndex}`}
+          rankIndex={rankIndex}
+          activePiece={pieces[activePiece]}
+          onCellClick={onCellClick}
+        />
       ))}
 
       {pieces.map((piece, i) => {
@@ -100,28 +105,36 @@ export function Board({ mouseX, mouseY }) {
   );
 }
 
-export function Rank({ rank, onCellClick }) {
+export function Rank({ rankIndex, activePiece, onCellClick }) {
+  console.log(activePiece);
   return (
     <div className={'rank'}>
       {mapNum(GRID_SIZE, (_, file) => (
         <Cell
-          key={`cell-${rank}-${file}`}
-          onClick={() => onCellClick(rank, file)}
-          color={(rank + file) % 2 === 0 ? '#f0d9b5' : '#b58863'}
+          key={`cell-${rankIndex}-${file}`}
+          onClick={() => onCellClick(rankIndex, file)}
+          isDark={(rankIndex + file) % 2 === 0}
+          isActive={
+            activePiece?.rank === rankIndex && activePiece?.file === file
+          }
         />
       ))}
     </div>
   );
 }
 
-export function Cell({ onClick, color }) {
-  return (
-    <div
-      className={'cell'}
-      style={{ backgroundColor: color }}
-      onClick={onClick}
-    />
-  );
+export function Cell({ onClick, isDark, isActive }) {
+  // add the cell-dark or cell-light class depending on isDark
+  // example:
+  const cellColourClass = isDark ? 'cell-dark' : 'cell-light';
+  // add the cell-active class if isActive
+  const cellClass = `${cellColourClass} ${isActive ? 'cell-active' : ''}`;
+
+  if (isActive) {
+    console.log('Cell is active');
+  }
+
+  return <div className={`cell ${cellClass}`} onClick={onClick} />;
 }
 
 export function Piece({ x, y, color, type, isHeld, onMouseDown, onClick }) {
