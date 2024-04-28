@@ -12,14 +12,23 @@ const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 export function Board({ mouseX, mouseY }) {
   const [holdingPiece, setHoldingPiece] = useState(undefined);
   const [activePiece, setActivePiece] = useState(undefined);
-  const [pieces, setPieces] = useState(STARTING_PIECES.map(p => ({ ...p })));
+  const [pieces, setPieces] = useState(
+    STARTING_PIECES.map(p => ({ ...p, uuid: `${Math.random()}` })),
+  );
   const boardRef = useRef(null);
 
-  const movePieceTo = (piece, rank, file) => {
+  const movePieceTo = (pieceUuid, rank, file) => {
     setPieces(pieces => {
-      const newPieces = [...pieces];
-      newPieces[piece].rank = rank;
-      newPieces[piece].file = file;
+      let newPieces = pieces.map(p => ({ ...p }));
+
+      newPieces = newPieces.filter(
+        piece => !(piece.rank === rank && piece.file === file),
+      );
+
+      const pieceToMove = newPieces.find(piece => piece.uuid === pieceUuid);
+      pieceToMove.rank = rank;
+      pieceToMove.file = file;
+
       return newPieces;
     });
     setActivePiece(undefined);
@@ -47,7 +56,7 @@ export function Board({ mouseX, mouseY }) {
       return;
     }
 
-    movePieceTo(holdingPiece.index, rank, file);
+    movePieceTo(holdingPiece.uuid, rank, file);
   };
 
   return (
@@ -56,7 +65,7 @@ export function Board({ mouseX, mouseY }) {
         <Rank
           key={`rank-${rankIndex}`}
           rankIndex={rankIndex}
-          activePiece={pieces[activePiece]}
+          activePiece={pieces.find(piece => piece.uuid === activePiece)}
           onCellClick={onCellClick}
         />
       ))}
@@ -64,7 +73,7 @@ export function Board({ mouseX, mouseY }) {
       {pieces.map((piece, i) => {
         let x, y;
 
-        const isHeld = holdingPiece?.index === i;
+        const isHeld = holdingPiece?.uuid === piece.uuid;
         if (isHeld) {
           const bounds = boardRef.current.getBoundingClientRect();
           x = mouseX - bounds.left - holdingPiece.mouseOffset[0];
@@ -76,7 +85,7 @@ export function Board({ mouseX, mouseY }) {
 
         return (
           <Piece
-            key={i}
+            key={piece.uuid}
             isHeld={isHeld}
             x={x}
             y={y}
@@ -89,14 +98,14 @@ export function Board({ mouseX, mouseY }) {
               }
 
               setHoldingPiece({
-                index: i,
+                uuid: piece.uuid,
                 mouseOffset: [
                   event.nativeEvent.offsetX,
                   event.nativeEvent.offsetY,
                 ],
                 startingPosition: { rank: piece.rank, file: piece.file },
               });
-              setActivePiece(i);
+              setActivePiece(piece.uuid);
             }}
           />
         );
