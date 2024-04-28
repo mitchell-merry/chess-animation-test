@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import './Board.css';
 import { ASSETS, STARTING_PIECES } from './assets/data';
 
@@ -11,24 +11,27 @@ const PIECE_PAD_PX = (CELL_SIZE_PX - PIECE_SIZE_PX) / 2;
 
 export function Board({ mouseX, mouseY }) {
   const [holdingPiece, setHoldingPiece] = useState(undefined);
-  const [activePiece, setActivePiece] = useState(undefined);
+  const [activePieceUUID, setActivePieceUUID] = useState(undefined);
   const [pieces, setPieces] = useState(
     STARTING_PIECES.map(p => ({ ...p, uuid: `${Math.random()}` })),
   );
   const boardRef = useRef(null);
 
-  const movePieceTo = (pieceUuid, rank, file) => {
-    setPieces(pieces => {
-      let newPieces = pieces.map(p => ({ ...p }));
+  const pieceAt = (rank, file) =>
+    pieces.find(piece => piece.rank === rank && piece.file === file);
 
-      newPieces = newPieces.filter(
-        piece =>
-          !(
-            piece.rank === rank &&
-            piece.file === file &&
-            piece.uuid !== pieceUuid
-          ),
-      );
+  const movePieceTo = (pieceUuid, rank, file) => {
+    setActivePieceUUID(undefined);
+
+    // exit early if the piece is already in the correct position
+    if (pieceAt(rank, file)?.uuid === pieceUuid) {
+      return;
+    }
+
+    setPieces(pieces => {
+      const newPieces = pieces
+        .map(p => ({ ...p }))
+        .filter(piece => !(piece.rank === rank && piece.file === file));
 
       const pieceToMove = newPieces.find(piece => piece.uuid === pieceUuid);
       pieceToMove.rank = rank;
@@ -36,13 +39,12 @@ export function Board({ mouseX, mouseY }) {
 
       return newPieces;
     });
-    setActivePiece(undefined);
   };
 
   const onCellClick = (rank, file) => {
-    if (activePiece === undefined) return;
+    if (activePieceUUID === undefined) return;
 
-    movePieceTo(activePiece, rank, file);
+    movePieceTo(activePieceUUID, rank, file);
   };
 
   const releasePiece = event => {
@@ -70,7 +72,7 @@ export function Board({ mouseX, mouseY }) {
         <Rank
           key={`rank-${rankIndex}`}
           rankIndex={rankIndex}
-          activePiece={pieces.find(piece => piece.uuid === activePiece)}
+          activePiece={pieces.find(piece => piece.uuid === activePieceUUID)}
           onCellClick={onCellClick}
         />
       ))}
@@ -97,8 +99,8 @@ export function Board({ mouseX, mouseY }) {
             color={piece.color}
             type={piece.type}
             onMouseDown={event => {
-              if (activePiece !== undefined) {
-                movePieceTo(activePiece, piece.rank, piece.file);
+              if (activePieceUUID !== undefined) {
+                movePieceTo(activePieceUUID, piece.rank, piece.file);
                 return;
               }
 
@@ -110,7 +112,7 @@ export function Board({ mouseX, mouseY }) {
                 ],
                 startingPosition: { rank: piece.rank, file: piece.file },
               });
-              setActivePiece(piece.uuid);
+              setActivePieceUUID(piece.uuid);
             }}
           />
         );
@@ -152,6 +154,7 @@ export function Piece({ x, y, color, type, isHeld, onMouseDown, onClick }) {
       style={{
         transform: `translate(${x}px, ${y}px)`,
         transition: !isHeld ? 'transform 0.1s ease' : undefined,
+        zIndex: isHeld ? 2 : 1,
       }}
       draggable={false}
       onClick={onClick}
