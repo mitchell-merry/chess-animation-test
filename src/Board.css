@@ -44,5 +44,13 @@
   min-width: 100px;
   min-height: 100px;
   background-color: rgba(0, 0, 0, 0);
+}
+
+.piece-unheld {
+  transition: transform 0.1s ease;
+  z-index: 1;
+}
+
+.piece-held {
   z-index: 1;
 }

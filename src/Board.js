@@ -149,15 +149,18 @@ export function Cell({ onClick, isDark, isActive }) {
 }
 
 export function Piece({ x, y, color, type, isHeld, onMouseDown, onClick }) {
+  const classes = Object.values({
+    base: 'piece',
+    held: isHeld ? 'piece-held' : 'piece-unheld',
+  }).join(' ');
+
   return (
     <img
       src={ASSETS[color][type]}
       alt={`${color} ${type}`}
-      className={'piece'}
+      className={classes}
       style={{
         transform: `translate(${x}px, ${y}px)`,
-        transition: !isHeld ? 'transform 0.1s ease' : undefined,
-        zIndex: isHeld ? 2 : 1,
       }}
       draggable={false}
       onClick={onClick}
