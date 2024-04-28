@@ -22,7 +22,12 @@ export function Board({ mouseX, mouseY }) {
       let newPieces = pieces.map(p => ({ ...p }));
 
       newPieces = newPieces.filter(
-        piece => !(piece.rank === rank && piece.file === file),
+        piece =>
+          !(
+            piece.rank === rank &&
+            piece.file === file &&
+            piece.uuid !== pieceUuid
+          ),
       );
 
       const pieceToMove = newPieces.find(piece => piece.uuid === pieceUuid);
